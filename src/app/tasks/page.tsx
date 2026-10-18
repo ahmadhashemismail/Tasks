@@ -1,94 +1,48 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useAuth, SignInButton } from "@clerk/nextjs";
-import { getTasks, addTask } from "@/lib/api/tasks/route";
+import Link from "next/link";
+import { List, Plus, Clear } from "@/components/icons";
+import { useTasks } from "@/hooks/useTasks";
+import TaskList from "@/components/TaskList";
+import Button from "@/components/ui/Button";
+import LoginPrompt from "@/components/LoginPrompt";
 
-type Task = {
-  id: number;
-  title: string;
-  note: string | null;
-  date: string | null;
-  enddate: string | null;
-  done: boolean;
-};
+export default function TaskListPage() {
+  const { isLoaded, isSignedIn, tasks, loading, error, toggleDone, remove, clearDone } = useTasks();
+  const list = tasks ?? [];
+  const doneCount = list.filter((t) => t.done).length;
 
-export default function TasksPage() {
-  const { isLoaded, isSignedIn } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [title, setTitle] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  // function 1: get the tasks (only when logged in)
-  async function loadTasks() {
-    setLoading(true);
-    try {
-      const data = await getTasks();
-      setTasks(data.tasks ?? []);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (isLoaded && isSignedIn) loadTasks();
-  }, [isLoaded, isSignedIn]);
-
-  // function 2: add a task (asks to login if needed)
-  async function handleAddTask() {
-    if (!isSignedIn) {
-      setError("Please login to add tasks");
-      return;
-    }
-    if (!title.trim()) return;
-    try {
-      await addTask({ title });
-      setTitle("");
-      setError("");
-      loadTasks();
-    } catch (e: any) {
-      setError(e.message);
-    }
+  if (!isLoaded || (isSignedIn && loading)) {
+    return <main className="container"><p>Loading…</p></main>;
   }
 
   return (
-    <div>
-      <h1>My Tasks</h1>
+    <main className="container">
+      <header className="page-header">
+        <h1><List size={22} /> Task List</h1>
+        <Link href="/tasks/new" className="btn btn--primary"><Plus size={16} /> New Task</Link>
+      </header>
 
-      {error && (
-        <p style={{ color: "red" }}>
-          {error}{" "}
-          {!isSignedIn && (
-            <SignInButton mode="modal">
-              <button>Login</button>
-            </SignInButton>
-          )}
-        </p>
-      )}
+      {error && <div className="banner banner--error">{error}</div>}
 
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="New task..."
-      />
-      <button onClick={handleAddTask}>Add</button>
-{loading && <p>Loading tasks...</p>}
-      {!isSignedIn  ? (
-        <p>Login to see and add your tasks.</p>
-      ) : tasks.length === 0 && !loading ? (
-        <>
-        <p>No tasks yet. Add your first task.</p>
-       
-        </> 
+      {!isSignedIn ? (
+        <LoginPrompt message="Login to see and add your tasks." />
       ) : (
-        <ul>
-          {tasks.map((task) => (
-            <li key={task.id}>{task.title}</li>
-          ))}
-        </ul>
+        <>
+          <TaskList
+            tasks={list}
+            onToggle={toggleDone}
+            onDelete={remove}
+            emptyMessage="No tasks yet. Create one to get started!"
+            emptyAction={<Link href="/tasks/new" className="btn btn--primary"><Plus size={16} /> Create Your First Task</Link>}
+          />
+
+          {doneCount > 0 && (
+            <div className="list-footer">
+              <Button variant="ghost" onClick={clearDone}><Clear size={16} /> Remove Done Tasks</Button>
+            </div>
+          )}
+        </>
       )}
-    </div>
+    </main>
   );
 }

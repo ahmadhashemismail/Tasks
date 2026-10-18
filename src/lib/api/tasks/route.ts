@@ -23,7 +23,12 @@ export async function getTask(id: number) {
 }
 
 // POST new task
-export async function addTask(task: { title: string; note?: string; date?: string; enddate?: string }) {
+export async function addTask(task: {
+  title: string;
+  note?: string | null;
+  date?: string | null;
+  enddate?: string | null;
+}) {
   const res = await fetch(`${Base}tasks`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -37,7 +42,13 @@ export async function addTask(task: { title: string; note?: string; date?: strin
 // PUT update task
 export async function updateTask(
   id: number,
-  task: { title: string; note?: string; date?: string; enddate?: string; done?: boolean }
+  task: {
+    title: string;
+    note?: string | null;
+    date?: string | null;
+    enddate?: string | null;
+    done?: boolean;
+  }
 ) {
   const res = await fetch(`${Base}tasks/${id}`, {
     method: "PUT",

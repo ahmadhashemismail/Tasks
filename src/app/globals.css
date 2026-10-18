@@ -1,26 +1,183 @@
-@import "tailwindcss";
+/* ============================================================
+   TaskFlow — Global tokens & base styles
+   Concept: the "manifest" — tasks read like boarding-pass /
+   ledger stubs. Cool pine-and-slate palette, grotesk display
+   type, mono type for anything that behaves like data (dates,
+   status, counts).
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap");
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    /* ---- surface (clean dark theme, not a terminal) ---- */
+  --bg: #0b0d10;
+  --bg-alt: #111419;
+  --surface: #191c23;
+  --ink: #e6e9f2;
+  --ink-soft: #9aa3b8;
+  --ink-faint: #6b748e;
+  --text-muted: #9aa3b8;   /* referenced in App.jsx (sign-out) */
+
+    /* ---- primary (calm blue, professional) ---- */
+  --accent: #60a5fa;
+  --accent-strong: #93c5fd;
+  --accent-bg: #1e3a7a;
+  --accent-border: #3b82f6;
+
+  /* ---- success / done (muted green) ---- */
+  --green: #4ade80;
+  --green-bg: #0c2a1e;
+  --green-border: #22c55e;
+
+  /* ---- warning / pending (muted amber) ---- */
+  --amber: #fbbf24;
+  --amber-bg: #3a2a04;
+  --amber-border: #f59e0b;
+
+  /* ---- error / expired / delete (muted red) — kept var name for compat ---- */
+  --rust: #f87171;
+  --rust-bg: #3a1213;
+  --rust-border: #ef4444;
+
+  /* ---- "due today" (blue) ---- */
+  --blue: #60a5fa;
+  --blue-bg: #1e3a7a;
+  --blue-border: #3b82f6;
+
+    /* ---- borders / rules ---- */
+  --line: #272c36;
+  --line-strong: #3a4150;
+
+  /* ---- shadows (subtle, dark) ---- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45), 0 1px 1px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
+
+  /* ---- type ---- */
+  --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* ---- shape / rhythm ---- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --space-1: 0.4rem;
+  --space-2: 0.8rem;
+  --space-3: 1.4rem;
+  --space-4: 2.2rem;
+  --space-5: 3.4rem;
+  --space-6: 4.4rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ---- reset ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% -10%, var(--accent-bg) 0%, transparent 42%),
+    var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-2);
+}
+
+h1 { font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.2rem); font-weight: 700; }
+h2 { font-size: 1.15rem; font-weight: 600; }
+
+p { margin: 0 0 var(--space-2); color: var(--ink-soft); }
+
+a {
+  color: var(--accent-strong);
+  text-decoration: none;
+  font-weight: 600;
+}
+a:hover { text-decoration: underline; }
+
+/* visible keyboard focus everywhere */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+button {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 0.55em 1em;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+}
+button:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+button:active { transform: translateY(0); }
+
+input,
+textarea {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.65em 0.8em;
+  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input::placeholder,
+textarea::placeholder { color: var(--ink-faint); }
+input:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+textarea { min-height: 6.5rem; resize: vertical; }
+
+label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: var(--space-1);
+}
+
+ul { list-style: none; margin: 0; padding: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

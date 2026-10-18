@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Task website icon</title>
+  <desc id="desc">A blue rounded square containing a white checklist.</desc>
+  <rect width="512" height="512" rx="112" fill="#2563EB"/>
+  <path d="M151 159h210M151 256h210M151 353h145" stroke="#BFDBFE" stroke-width="25" stroke-linecap="round"/>
+  <path d="m108 159 19 19 35-42m-54 120 19 19 35-42m-54 120 19 19 35-42" fill="none" stroke="#FFF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="387" cy="353" r="47" fill="#FFF"/>
+  <path d="m365 353 15 15 29-34" fill="none" stroke="#2563EB" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
