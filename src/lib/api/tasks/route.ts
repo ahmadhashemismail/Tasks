@@ -1,5 +1,5 @@
+import type { Task } from "@/lib/types/types";
 const Base = "/server/";
-
 // GET all tasks
 export async function getTasks() {
   const res = await fetch(`${Base}tasks`, {
@@ -23,7 +23,9 @@ export async function getTask(id: number) {
 }
 
 // POST new task
-export async function addTask(task: { title: string; note?: string; date?: string; enddate?: string }) {
+
+// POST new task
+export async function addTask(task: Task) {
   const res = await fetch(`${Base}tasks`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -35,11 +37,8 @@ export async function addTask(task: { title: string; note?: string; date?: strin
 }
 
 // PUT update task
-export async function updateTask(
-  id: number,
-  task: { title: string; note?: string; date?: string; enddate?: string; done?: boolean }
-) {
-  const res = await fetch(`${Base}tasks/${id}`, {
+export async function updateTask(task: Task) {
+  const res = await fetch(`${Base}tasks/${task.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(task),

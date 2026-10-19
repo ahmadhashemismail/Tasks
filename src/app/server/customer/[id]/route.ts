@@ -33,7 +33,7 @@ export async function PUT(req: Request, { params }: Ctx) {
 
     const rows = await sql`
       UPDATE customer
-      SET name = ${name}, debts = ${debts}, cost = ${cost}, balance = ${balance}
+      SET name = ${name}, debts = ${debts}, cost = ${cost}
       WHERE id = ${id} AND account_id = ${accountId}
       RETURNING *`;
     if (!rows[0]) return NextResponse.json({ error: "Customer not found" }, { status: 404 });

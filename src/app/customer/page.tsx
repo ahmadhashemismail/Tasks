@@ -1,84 +1,115 @@
-
+"use client";
 import { useEffect, useState } from "react";
-import { getCustomers, addCustomer } from "@/lib/api/customers/route";
-
-type Customer = {
-  id: number;
-  name: string;
-  debts: string; // numeric columns come back from Postgres as strings
-  cost: string;
-  balance: string;
-};
-
+import Link from "next/link";
+import { useAuth, SignInButton } from "@clerk/nextjs";
+import { Pencil, Trash2, Wallet, Scale } from "lucide-react";
+import type { Customer } from "@/lib/types/types";
+import { getCustomers, deleteCustomer } from "@/lib/api/customers/route";
+import AddCustomerPage from "./addcustomer/page";
+import { ListSkeleton } from "../components/loader";
 export default function CustomerPage() {
+  const { isLoaded, isSignedIn } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [name, setName] = useState("");
-  const [debts, setDebts] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // function 1: get the customers (with their debts) from the api
   async function loadCustomers() {
+    setLoading(true);
     try {
       const data = await getCustomers();
       setCustomers(data.customers ?? []);
     } catch (e: any) {
       setError(e.message);
+    } finally {
+      setLoading(false);
     }
   }
 
-  // run once when the page opens
   useEffect(() => {
-    loadCustomers();
-  }, []);
+    if (isLoaded && isSignedIn) loadCustomers();
+  }, [isLoaded, isSignedIn]);
 
-  // function 2: add a customer with a debt using the api
-  async function handleAddCustomer() {
-    if (!name.trim()) return;
+  async function handleDelete(id: number) {
+    if (!window.confirm("Delete this customer?")) return;
     try {
-      await addCustomer({ name, debts: Number(debts) || 0 });
-      setName("");
-      setDebts("");
-      loadCustomers(); // reload the list
+      await deleteCustomer(id);
+      await loadCustomers();
     } catch (e: any) {
       setError(e.message);
     }
   }
 
-  // total of all debts
   const totalDebts = customers.reduce((sum, c) => sum + Number(c.debts), 0);
+  const totalBalance = customers.reduce((sum, c) => sum + Number(c.balance), 0);
 
   return (
-    <div>
-      <h1>Customers & Debts</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="container">
+      <div className="page-header">
+        <div>
+          <h1>Debts</h1>
+          <p className="page-subtitle">Customers and what they owe.</p>
+        </div>
+      </div>
 
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Customer name..."
-      />
-      <input
-        type="number"
-        min="0"
-        value={debts}
-        onChange={(e) => setDebts(e.target.value)}
-        placeholder="Debts..."
-      />
-      <button onClick={handleAddCustomer}>Add</button>
+      {error && (
+        <div className="banner banner--error">
+          {error}{" "}
+          {!isSignedIn && (
+            <SignInButton mode="modal"><button className="btn">Login</button></SignInButton>
+          )}
+        </div>
+      )}
 
-      {customers.length === 0 ? (
-        <p>No customers yet. Add your first customer.</p>
+      <div className="stats">
+        <div className="stat-card stat-card--pending">
+          <Wallet className="stat-card__icon" />
+          <div className="stat-card__body">
+            <span className="stat-card__value">{totalDebts}</span>
+            <span className="stat-card__label">Total debts</span>
+          </div>
+        </div>
+        <div className="stat-card stat-card--done">
+          <Scale className="stat-card__icon" />
+          <div className="stat-card__body">
+            <span className="stat-card__value">{totalBalance}</span>
+            <span className="stat-card__label">Total balance</span>
+          </div>
+        </div>
+      </div>
+
+   <div style={{ margin: "var(--space-3) 0" }}>
+  <AddCustomerPage onAdded={loadCustomers} />
+</div>
+
+            {loading && <ListSkeleton count={2} />}
+
+      {!isSignedIn ? (
+        <div className="empty-state"><p>Login to see and add your customers.</p></div>
+      ) : customers.length === 0 && !loading ? (
+        <div className="empty-state"><p>No customers yet. Add your first customer.</p></div>
       ) : (
-        <>
-          <ul>
-            {customers.map((c) => (
-              <li key={c.id}>
-                {c.name} — debts: {c.debts}
-              </li>
-            ))}
-          </ul>
-          <p>Total debts: {totalDebts}</p>
-        </>
+        <div className="debt-list">
+          {customers.map((c) => (
+            <div className="debt-item" key={c.id}>
+              <div className="debt-item__details">
+                <h2>{c.name}</h2>
+                <div className="debt-item__numbers">
+                  <span>Debts: {c.debts}</span>
+                  <span>Cost: {c.cost}</span>
+                  <span className="debt-item__balance">Balance: {c.balance}</span>
+                </div>
+              </div>
+              <div className="task-actions">
+                <Link href={`/customer/editcustomer/${c.id}`} className="action action--edit" aria-label="Edit customer">
+                  <Pencil size={16} />
+                </Link>
+                <button className="action action--delete" onClick={() => handleDelete(c.id)} aria-label="Delete customer">
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

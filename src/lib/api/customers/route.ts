@@ -1,6 +1,5 @@
+import type {Customer} from "@/lib/types/types";
 const Base = "/server/";
-
-type Customer = { name: string; debts?: number; cost?: number; balance?: number };
 
 export async function getCustomers() {
   const res = await fetch(`${Base}customer`, {
@@ -33,8 +32,8 @@ export async function addCustomer(customer: Customer) {
   return data;
 }
 
-export async function updateCustomer(id: number, customer: Customer) {
-  const res = await fetch(`${Base}customer/${id}`, {
+export async function updateCustomer( customer: Customer) {
+  const res = await fetch(`${Base}customer/${customer.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(customer),

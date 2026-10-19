@@ -45,11 +45,11 @@ export async function POST(req: Request) {
     const { name, debts = 0, cost = 0 } = await req.json();
     if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
 
-    const balance = Number(debts) - Number(cost); // balance = debts - cost
+    const balance = Number(debts) - Number(cost) || 0; // balance = debts - cost
 
     const rows = await sql`
-      INSERT INTO customer (name, debts, cost, balance, account_id)
-      VALUES (${name}, ${debts}, ${cost}, ${balance}, ${accountId})
+      INSERT INTO customer (name, debts, cost, account_id)
+      VALUES (${name}, ${debts}, ${cost}, ${accountId})
       RETURNING *`;
     return NextResponse.json(rows[0], { status: 201 });
   } catch (error) {
