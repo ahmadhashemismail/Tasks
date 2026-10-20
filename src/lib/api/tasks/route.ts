@@ -22,7 +22,26 @@ export async function getTask(id: number) {
   return data;
 }
 
-// POST new task
+export async function getDoneTasks() {
+  const res = await fetch(`${Base}tasks/done`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data;
+}
+
+export async function getnonDoneTasks() {
+  const res = await fetch(`${Base}tasks/notdone`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data;
+}
+
 
 // POST new task
 export async function addTask(task: Task) {

@@ -10,9 +10,11 @@ import ConfirmDialog from "../components/ConfirmDialog";
 function dueBadge(t: Task) {
   if (t.done) return <span className="badge badge--done">Done</span>;
   const today = new Date().toISOString().slice(0, 10);
-  if (!t.enddate) return <span className="badge badge--neutral">No due date</span>;
+  if (!t.enddate)
+    return <span className="badge badge--neutral">No due date</span>;
   const d = t.enddate.slice(0, 10);
-  if (d < today) return <span className="badge badge--expired">Expired {d}</span>;
+  if (d < today)
+    return <span className="badge badge--expired">Expired {d}</span>;
   if (d === today) return <span className="badge badge--today">Due today</span>;
   return <span className="badge badge--neutral">Due {d}</span>;
 }
@@ -30,7 +32,7 @@ export default function TasksPage() {
     try {
       const data = await getTasks();
       // accept both { tasks: [...] } and a plain array
-      setTasks(Array.isArray(data) ? data : data?.tasks ?? []);
+      setTasks(Array.isArray(data) ? data : (data?.tasks ?? []));
     } catch (e: any) {
       setError(e.message || "Could not load tasks");
     } finally {
@@ -41,7 +43,6 @@ export default function TasksPage() {
   useEffect(() => {
     if (isLoaded && isSignedIn) loadTasks();
   }, [isLoaded, isSignedIn]);
-
 
   async function confirmDelete() {
     if (!deleteTarget) return;
@@ -82,7 +83,7 @@ export default function TasksPage() {
 
       {error && <div className="banner banner--error">{error}</div>}
 
-          {!isLoaded || loading ? (
+      {!isLoaded || loading ? (
         <ListSkeleton />
       ) : !isSignedIn ? (
         <div className="empty-state">
@@ -92,14 +93,22 @@ export default function TasksPage() {
           </SignInButton>
         </div>
       ) : tasks.length === 0 ? (
-        <div className="empty-state"><p>No tasks yet. Add your first task.</p></div>
+        <div className="empty-state">
+          <p>No tasks yet. Add your first task.</p>
+        </div>
       ) : (
         <div className="task-list">
           {tasks.map((task) => (
-            <div className="task-item" key={task.id} data-state={task.done ? "done" : "open"}>
+            <div
+              className="task-item"
+              key={task.id}
+              data-state={task.done ? "done" : "open"}
+            >
               <div className="task-item__content">
-                <h3 className={`task-item__title ${task.done ? "task-item__title--done" : ""}`}>
-                  {task.title}
+                <h3
+                  className={`task-item__title ${task.done ? "task-item__title--done" : ""}`}
+                >
+                  <Link href={`/tasks/${task.id}`}>{task.title}</Link>
                 </h3>
                 {task.note && <p className="task-item__note">{task.note}</p>}
                 <div className="task-item__meta">{dueBadge(task)}</div>
@@ -122,7 +131,7 @@ export default function TasksPage() {
                 >
                   <Pencil size={16} />
                 </Link>
-                             <button
+                <button
                   className="action action--delete"
                   onClick={() => setDeleteTarget(task)}
                   aria-label="Delete task"
@@ -131,14 +140,14 @@ export default function TasksPage() {
                   <Trash2 size={16} />
                 </button>
               </div>
-                    <ConfirmDialog
-        open={deleteTarget !== null}
-        title="Delete this task?"
-        message={`"${deleteTarget?.title ?? ""}" will be removed permanently.`}
-        loading={deleting}
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteTarget(null)}
-      />
+              <ConfirmDialog
+                open={deleteTarget !== null}
+                title="Delete this task?"
+                message={`"${deleteTarget?.title ?? ""}" will be removed permanently.`}
+                loading={deleting}
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteTarget(null)}
+              />
             </div>
           ))}
         </div>

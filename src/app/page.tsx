@@ -2,16 +2,27 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
-import { ArrowRight, Check, Clock, Home, Pencil, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  Clock,
+  Home,
+  Pencil,
+  Plus,
+  ShoppingBag,
+  Trash2,
+} from "lucide-react";
 import { getTasks, updateTask, deleteTask } from "@/lib/api/tasks/route";
 import { ListSkeleton } from "./components/loader";
 import type { Task } from "@/lib/types/types";
 
 function dueBadge(t: Task) {
   const today = new Date().toISOString().slice(0, 10);
-  if (!t.enddate) return <span className="badge badge--neutral">No due date</span>;
+  if (!t.enddate)
+    return <span className="badge badge--neutral">No due date</span>;
   const d = t.enddate.slice(0, 10);
-  if (d < today && !t.done) return <span className="badge badge--expired">Expired {d}</span>;
+  if (d < today && !t.done)
+    return <span className="badge badge--expired">Expired {d}</span>;
   if (d === today) return <span className="badge badge--today">Due today</span>;
   return <span className="badge badge--neutral">Due {d}</span>;
 }
@@ -24,7 +35,7 @@ export default function HomePage() {
   async function loadTasks() {
     try {
       const data = await getTasks();
-      setTasks(Array.isArray(data) ? data : data?.tasks ?? []);
+      setTasks(Array.isArray(data) ? data : (data?.tasks ?? []));
     } catch (e) {
       console.error(e);
     } finally {
@@ -56,12 +67,18 @@ export default function HomePage() {
     <div className="container">
       <div className="page-header">
         <div>
-          <h1><Home size={28} style={{ verticalAlign: "-4px" }} /> TaskFlow</h1>
+          <h1>
+            <Home size={28} style={{ verticalAlign: "-4px" }} /> TaskFlow
+          </h1>
           <p className="page-subtitle">Your dashboard at a glance.</p>
         </div>
         <div className="page-header__actions">
-          <Link href="/customer" className="btn">Debts</Link>
-          <Link href="/tasks/add-tasks" className="btn btn--primary"><Plus size={16} /> New Task</Link>
+          <Link href="/customer" className="btn">
+            Debts
+          </Link>
+          <Link href="/tasks/add-tasks" className="btn btn--primary">
+            <Plus size={16} /> New Task
+          </Link>
         </div>
       </div>
 
@@ -69,37 +86,47 @@ export default function HomePage() {
         <div className="stat-card">
           <ShoppingBag className="stat-card__icon" />
           <div className="stat-card__body">
-            <span className="stat-card__value">{tasks.length}</span>
-            <span className="stat-card__label">Total tasks</span>
+            <Link href="/tasks" className="stat-card__body" >
+              <span className="stat-card__value">{tasks.length}</span>
+              <span className="stat-card__label">Total tasks</span>
+            </Link>{" "}
           </div>
         </div>
         <div className="stat-card stat-card--done">
           <Check className="stat-card__icon" />
-          <div className="stat-card__body">
+          <div >
+             <Link href="/tasks/donetasks" className="stat-card__body">
             <span className="stat-card__value">{completed}</span>
             <span className="stat-card__label">Completed</span>
-          </div>
+         </Link> </div>
         </div>
         <div className="stat-card stat-card--pending">
           <Clock className="stat-card__icon" />
           <div className="stat-card__body">
+            <Link href="/tasks/notdone" className="stat-card__body">
             <span className="stat-card__value">{tasks.length - completed}</span>
             <span className="stat-card__label">Left to do</span>
-          </div>
+          </Link></div>
         </div>
       </div>
 
       <div className="recent__header">
         <h2>Up next</h2>
-        <Link href="/tasks" className="recent__link"><ArrowRight size={16} /> View all tasks</Link>
+        <Link href="/tasks" className="recent__link">
+          <ArrowRight size={16} /> View all tasks
+        </Link>
       </div>
 
       {!isLoaded || loading ? (
         <ListSkeleton />
       ) : !isSignedIn ? (
-        <div className="empty-state"><p>Sign in to see your tasks.</p></div>
+        <div className="empty-state">
+          <p>Sign in to see your tasks.</p>
+        </div>
       ) : upNext.length === 0 ? (
-        <div className="empty-state"><p>No tasks left. Add a new one.</p></div>
+        <div className="empty-state">
+          <p>No tasks left. Add a new one.</p>
+        </div>
       ) : (
         <div className="task-list">
           {upNext.map((t) => (
@@ -117,10 +144,18 @@ export default function HomePage() {
                 >
                   <Check size={16} />
                 </button>
-                <Link href={`/tasks/edittask/${t.id}`} className="action action--edit" aria-label="Edit task">
+                <Link
+                  href={`/tasks/edittask/${t.id}`}
+                  className="action action--edit"
+                  aria-label="Edit task"
+                >
                   <Pencil size={16} />
                 </Link>
-                <button className="action action--delete" onClick={() => handleDelete(t.id)} aria-label="Delete task">
+                <button
+                  className="action action--delete"
+                  onClick={() => handleDelete(t.id)}
+                  aria-label="Delete task"
+                >
                   <Trash2 size={16} />
                 </button>
               </div>

@@ -22,6 +22,7 @@ export async function GET() {
   }
 }
 
+
 export async function POST(req: Request) {
   try {
     const accountId = await getAccountId();

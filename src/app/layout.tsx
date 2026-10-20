@@ -5,8 +5,8 @@ import Navbar from "./components/Navbar";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TaskFlow",
-  icons: { icon: "/icon.svg" },
+  title: "Tasks",
+  icons: { icon: "/icon.svg?v=2" },
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
