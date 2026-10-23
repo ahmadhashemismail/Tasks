@@ -107,7 +107,7 @@ export async function POST(req: Request, { params }: Ctx) {
         return NextResponse.json(
           {
             error:
-              "The Neon database is missing public.customer.image_url. Run migrations/001_add_customer_image_url.sql against the production database.",
+              "The connected Neon database does not have public.customer.image_url. Verify that DATABASE_URL points to the Neon database with the customer schema shown.",
           },
           { status: 500 },
         );
