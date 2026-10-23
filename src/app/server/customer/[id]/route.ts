@@ -11,7 +11,8 @@ export async function GET(_: Request, { params }: Ctx) {
 
     const { id } = await params;
     const rows = await sql`
-      SELECT * FROM customer
+      SELECT id, name, debts, cost, account_id, balance, image_url
+      FROM public.customer
       WHERE id = ${id} AND account_id = ${accountId}`;
     if (!rows[0]) return NextResponse.json({ error: "Customer not found" }, { status: 404 });
 
@@ -29,13 +30,12 @@ export async function PUT(req: Request, { params }: Ctx) {
 
     const { id } = await params;
     const { name, debts, cost } = await req.json();
-    const balance = Number(debts) - Number(cost); // balance = debts - cost
 
     const rows = await sql`
-      UPDATE customer
+      UPDATE public.customer
       SET name = ${name}, debts = ${debts}, cost = ${cost}
       WHERE id = ${id} AND account_id = ${accountId}
-      RETURNING *`;
+      RETURNING id, name, debts, cost, account_id, balance, image_url`;
     if (!rows[0]) return NextResponse.json({ error: "Customer not found" }, { status: 404 });
 
     return NextResponse.json(rows[0]);
@@ -52,7 +52,7 @@ export async function DELETE(_: Request, { params }: Ctx) {
 
     const { id } = await params;
     const rows = await sql`
-      DELETE FROM customer
+      DELETE FROM public.customer
       WHERE id = ${id} AND account_id = ${accountId}
       RETURNING id`;
     if (!rows[0]) return NextResponse.json({ error: "Customer not found" }, { status: 404 });

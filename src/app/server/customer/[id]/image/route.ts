@@ -15,6 +15,15 @@ const IMAGE_TYPES: Record<string, string> = {
 
 type Ctx = { params: Promise<{ id: string }> };
 
+function isMissingImageColumn(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "42703"
+  );
+}
+
 export async function POST(req: Request, { params }: Ctx) {
   try {
     const { userId, accountId } = await getAuthState();
@@ -28,7 +37,7 @@ export async function POST(req: Request, { params }: Ctx) {
     }
 
     const customers = await sql`
-      SELECT id FROM customer
+      SELECT id FROM public.customer
       WHERE id = ${id} AND account_id = ${accountId}`;
     if (!customers[0]) {
       return NextResponse.json({ error: "Customer not found" }, { status: 404 });
@@ -86,17 +95,32 @@ export async function POST(req: Request, { params }: Ctx) {
 
     const publicUrl = supabase.storage.from(bucket).getPublicUrl(objectPath).data.publicUrl;
     const imageUrl = `${publicUrl}?v=${Date.now()}`;
-    const updated = await sql`
-      UPDATE customer SET image_url = ${imageUrl}
-      WHERE id = ${id} AND account_id = ${accountId}
-      RETURNING id`;
+    let updated;
+    try {
+      updated = await sql`
+        UPDATE public.customer SET image_url = ${imageUrl}
+        WHERE id = ${id} AND account_id = ${accountId}
+        RETURNING id, image_url`;
+    } catch (error) {
+      if (isMissingImageColumn(error)) {
+        console.error("Neon public.customer.image_url column is missing", error);
+        return NextResponse.json(
+          {
+            error:
+              "The Neon database is missing public.customer.image_url. Run migrations/001_add_customer_image_url.sql against the production database.",
+          },
+          { status: 500 },
+        );
+      }
+      throw error;
+    }
     if (!updated[0]) {
       return NextResponse.json({ error: "Customer not found" }, { status: 404 });
     }
 
     return NextResponse.json({ image_url: imageUrl });
   } catch (error) {
-    console.error(error);
+    console.error("Failed to upload customer image or save its URL", error);
     return NextResponse.json({ error: "Failed to save customer image" }, { status: 500 });
   }
 }
