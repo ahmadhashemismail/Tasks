@@ -4,7 +4,7 @@ import { sql } from "@/lib/db";
 import { getAuthState } from "@/lib/getAccountId";
 import { NextResponse } from "next/server";
 
-const DEFAULT_BUCKET = "public";
+const DEFAULT_BUCKET = "tasks";
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const IMAGE_TYPES: Record<string, string> = {
   "image/gif": "gif",
@@ -25,12 +25,14 @@ function isMissingImageColumn(error: unknown): boolean {
 }
 
 export async function POST(req: Request, { params }: Ctx) {
+  let stage = "authentication";
   try {
     const { userId, accountId } = await getAuthState();
     if (!userId || !accountId) {
       return NextResponse.json({ error: "Please login to upload an image" }, { status: 401 });
     }
 
+    stage = "customer lookup in Neon";
     const { id } = await params;
     if (!/^\d+$/.test(id)) {
       return NextResponse.json({ error: "Invalid customer ID" }, { status: 400 });
@@ -77,6 +79,7 @@ export async function POST(req: Request, { params }: Ctx) {
       auth: { autoRefreshToken: false, persistSession: false },
     });
     const objectPath = `${accountId}/${id}/image`;
+    stage = `upload to Supabase Storage bucket "${bucket}"`;
     const { error: uploadError } = await supabase.storage
       .from(bucket)
       .upload(objectPath, await image.arrayBuffer(), {
@@ -96,6 +99,7 @@ export async function POST(req: Request, { params }: Ctx) {
     const publicUrl = supabase.storage.from(bucket).getPublicUrl(objectPath).data.publicUrl;
     const imageUrl = `${publicUrl}?v=${Date.now()}`;
     let updated;
+    stage = "saving image URL to Neon";
     try {
       updated = await sql`
         UPDATE public.customer SET image_url = ${imageUrl}
@@ -120,7 +124,10 @@ export async function POST(req: Request, { params }: Ctx) {
 
     return NextResponse.json({ image_url: imageUrl });
   } catch (error) {
-    console.error("Failed to upload customer image or save its URL", error);
-    return NextResponse.json({ error: "Failed to save customer image" }, { status: 500 });
+    console.error(`Customer image failed during ${stage}`, error);
+    return NextResponse.json(
+      { error: `Customer image failed during ${stage}. Check the Vercel function logs for details.` },
+      { status: 500 },
+    );
   }
 }
