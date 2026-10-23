@@ -7,6 +7,8 @@ import type { Customer } from "@/lib/types/types";
 import { getCustomers, deleteCustomer } from "@/lib/api/customers/route";
 import AddCustomerPage from "./addcustomer/page";
 import { ListSkeleton } from "../components/loader";
+import ImageUpload from "../components/ImageUpload";
+import { imageUrl } from "@/lib/supabase-browser";
 export default function CustomerPage() {
   const { isLoaded, isSignedIn } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -92,12 +94,24 @@ export default function CustomerPage() {
           {customers.map((c) => (
             <div className="debt-item" key={c.id}>
               <div className="debt-item__details">
+                {imageUrl(c.image_path) && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={imageUrl(c.image_path)!}
+                    alt={c.name}
+                    loading="lazy"
+                    width={64}
+                    height={64}
+                    style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 8 }}
+                  />
+                )}
                 <h2>{c.name}</h2>
                 <div className="debt-item__numbers">
                   <span>Debts: {c.debts}</span>
                   <span>Cost: {c.cost}</span>
                   <span className="debt-item__balance">Balance: {c.balance}</span>
                 </div>
+                <ImageUpload customerId={c.id} hasImage={!!c.image_path} onUploaded={loadCustomers} />
               </div>
               <div className="task-actions">
                 <Link href={`/customer/editcustomer/${c.id}`} className="action action--edit" aria-label="Edit customer">

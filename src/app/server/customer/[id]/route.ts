@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { getAccountId } from "@/lib/getAccountId";
 import { NextResponse } from "next/server";
+import { supabaseAdmin, IMAGE_BUCKET } from "@/lib/supabase-admin";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -54,9 +55,12 @@ export async function DELETE(_: Request, { params }: Ctx) {
     const rows = await sql`
       DELETE FROM customer
       WHERE id = ${id} AND account_id = ${accountId}
-      RETURNING id`;
+      RETURNING id, image_path`;
     if (!rows[0]) return NextResponse.json({ error: "Customer not found" }, { status: 404 });
 
+    if (rows[0].image_path) {
+      await supabaseAdmin.storage.from(IMAGE_BUCKET).remove([rows[0].image_path]);
+    }
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error(error);

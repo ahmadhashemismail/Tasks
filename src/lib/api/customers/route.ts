@@ -52,3 +52,14 @@ export async function deleteCustomer(id: number) {
   if (!res.ok) throw new Error(data.error);
   return data;
 }
+
+export async function setCustomerImage(id: number, imagePath: string) {
+  const res = await fetch(`${Base}customer/${id}/image`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ imagePath }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data;
+}

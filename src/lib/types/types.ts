@@ -12,4 +12,5 @@ export type Task = {
   debts: number; // numeric columns come back from Postgres as strings
   cost: number;
   balance: number; // balance is not stored in the database, but calculated as cost - debts
+  image_path?: string | null; // path of the image in the Supabase bucket
 }
