@@ -205,11 +205,47 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 .debt-list { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
 .debt-item { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3); background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+.debt-item__image { width: 56px; height: 56px; flex: 0 0 56px; object-fit: cover; border-radius: var(--radius-sm); }
 .debt-item__details { min-width: 0; }
 .debt-item__details h2 { margin: 0 0 .35rem; }
 .debt-item__numbers { display: flex; flex-wrap: wrap; gap: .45rem 1rem; color: var(--ink-soft); font-size: .85rem; }
 .debt-item__balance { color: var(--ink); font-weight: 700; }
 .debt-form { margin-bottom: var(--space-3); }
+.customer-edit { max-width: 720px; }
+.customer-edit__top { margin-bottom: var(--space-3); }
+.customer-edit__back { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--ink-soft); font-size: 0.88rem; }
+.customer-edit__back:hover { color: var(--accent-strong); }
+.customer-edit__header { margin-bottom: var(--space-3); }
+.customer-edit__eyebrow { display: inline-block; margin-bottom: 0.45rem; color: var(--accent-strong); font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; }
+.customer-edit__header h1 { margin-bottom: 0.35rem; }
+.customer-edit__header .page-subtitle { margin-bottom: 0; }
+.customer-edit__form { max-width: none; gap: var(--space-3); }
+.customer-edit__section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
+.customer-edit__section-heading h2 { margin: 0 0 0.3rem; }
+.customer-edit__section-heading p { margin: 0; font-size: 0.82rem; }
+.customer-edit__id { flex: 0 0 auto; padding: 0.3rem 0.65rem; color: var(--ink-soft); background: var(--bg-alt); border: 1px solid var(--line); border-radius: 999px; font-family: var(--font-mono); font-size: 0.7rem; }
+.customer-edit__numbers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.customer-edit__input-wrap { position: relative; }
+.customer-edit__input-wrap > span { position: absolute; z-index: 1; top: 50%; left: 0.85rem; color: var(--ink-faint); transform: translateY(-50%); }
+.customer-edit__input-wrap input { padding-left: 1.8rem; }
+.customer-edit__image-section { padding-top: var(--space-2); border-top: 1px solid var(--line); }
+.customer-edit__image-control { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+.customer-edit__preview { position: relative; display: grid; flex: 0 0 88px; width: 88px; height: 88px; place-items: center; overflow: hidden; color: var(--ink-faint); background: var(--bg-alt); border: 1px solid var(--line-strong); border-radius: var(--radius-md); }
+.customer-edit__preview img { width: 100%; height: 100%; object-fit: cover; }
+.customer-edit__file { display: grid; justify-items: start; gap: 0.45rem; min-width: 0; }
+.customer-edit__file input[type="file"] { position: absolute; width: 1px; height: 1px; padding: 0; opacity: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+.customer-edit__choose { display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; }
+.customer-edit__file .field__hint { overflow-wrap: anywhere; }
+.customer-edit__status { max-width: none; color: var(--ink-soft); }
+.customer-edit__actions { display: flex; justify-content: flex-end; gap: var(--space-2); padding-top: var(--space-2); border-top: 1px solid var(--line); }
+.customer-edit__actions .btn { min-height: 42px; }
+@media (max-width: 560px) {
+  .customer-edit__form { padding: var(--space-3); }
+  .customer-edit__numbers { grid-template-columns: 1fr; }
+  .customer-edit__image-control { align-items: flex-start; flex-direction: column; }
+  .customer-edit__actions { flex-direction: column-reverse; }
+  .customer-edit__actions .btn { width: 100%; }
+}
 .debt-fab { position: fixed; right: 2rem; bottom: 2rem; z-index: 15; width: 58px; height: 58px; border: 0; border-radius: 50%; background: var(--accent); color: white; font-size: 1.8rem; box-shadow: var(--shadow-md); }
 .debt-fab:hover { background: var(--accent-strong); color: var(--bg); }
 @media (max-width: 560px) { .debt-item { align-items: flex-start; flex-direction: column; } .debt-item .task-actions { align-self: flex-end; } .debt-fab { right: 1rem; bottom: 1rem; } }

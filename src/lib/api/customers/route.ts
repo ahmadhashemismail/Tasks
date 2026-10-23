@@ -1,14 +1,14 @@
 import type {Customer} from "@/lib/types/types";
 const Base = "/server/";
 
-export async function getCustomers() {
+export async function getCustomers(): Promise<{ customers: Customer[] }> {
   const res = await fetch(`${Base}customer`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error);
-  return data;
+  return data as { customers: Customer[] };
 }
 
 export async function getCustomer(id: number) {
@@ -21,7 +21,7 @@ export async function getCustomer(id: number) {
   return data;
 }
 
-export async function addCustomer(customer: Customer) {
+export async function addCustomer(customer: Customer): Promise<Customer> {
   const res = await fetch(`${Base}customer`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -29,7 +29,20 @@ export async function addCustomer(customer: Customer) {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error);
-  return data;
+  return data as Customer;
+}
+
+export async function uploadCustomerImage(customerId: number, image: File) {
+  const formData = new FormData();
+  formData.set("image", image);
+
+  const res = await fetch(`${Base}customer/${customerId}/image`, {
+    method: "POST",
+    body: formData,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data as { image_url: string };
 }
 
 export async function updateCustomer( customer: Customer) {

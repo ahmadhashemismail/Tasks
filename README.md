@@ -16,6 +16,10 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Customer images
+
+Customer photos are uploaded to a public Supabase Storage bucket. The app uses `SUPABASE_URL` and the server-only `SUPABASE_SECRET_KEY` from `.env.local`; do not expose the secret key to the browser. Create a public bucket in Supabase Storage, then set `SUPABASE_STORAGE_BUCKET` to its name (defaults to `public`) and run `migrations/001_add_customer_image_url.sql` against Neon before using customer image uploads. Images are limited to 5 MB and JPEG, PNG, WebP, or GIF.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
