@@ -4,7 +4,7 @@ import { sql } from "@/lib/db";
 import { getAuthState } from "@/lib/getAccountId";
 import { NextResponse } from "next/server";
 
-const DEFAULT_BUCKET = "tasks";
+const DEFAULT_BUCKET = "public";
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const IMAGE_TYPES: Record<string, string> = {
   "image/gif": "gif",
@@ -46,11 +46,21 @@ export async function POST(req: Request, { params }: Ctx) {
     }
 
     const contentLength = Number(req.headers.get("content-length"));
-    if (contentLength > MAX_IMAGE_SIZE + 64 * 1024) {
+    if (Number.isFinite(contentLength) && contentLength > MAX_IMAGE_SIZE + 64 * 1024) {
       return NextResponse.json({ error: "Image must be 5 MB or smaller" }, { status: 413 });
     }
 
-    const formData = await req.formData();
+    let formData: FormData;
+    try {
+      formData = await req.formData();
+    } catch (error) {
+      console.error("Customer image form parsing failed", error);
+      return NextResponse.json(
+        { error: "The uploaded image could not be read. Please try again." },
+        { status: 400 },
+      );
+    }
+
     const image = formData.get("image");
     if (!(image instanceof File)) {
       return NextResponse.json({ error: "Choose an image to upload" }, { status: 400 });
@@ -70,7 +80,7 @@ export async function POST(req: Request, { params }: Ctx) {
 
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
-    const bucket = process.env.SUPABASE_STORAGE_BUCKET || DEFAULT_BUCKET;
+    const bucket = (process.env.SUPABASE_STORAGE_BUCKET || DEFAULT_BUCKET).trim() || DEFAULT_BUCKET;
     if (!supabaseUrl || !supabaseSecretKey) {
       throw new Error("SUPABASE_URL and SUPABASE_SECRET_KEY must be configured");
     }
