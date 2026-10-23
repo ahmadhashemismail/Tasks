@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth, SignInButton } from "@clerk/nextjs";
 import { Pencil, Trash2, Wallet, Scale } from "lucide-react";
-import Image from "next/image";
 import type { Customer } from "@/lib/types/types";
 import { getCustomers, deleteCustomer } from "@/lib/api/customers/route";
 import AddCustomerPage from "./addcustomer/page";
@@ -92,16 +91,6 @@ export default function CustomerPage() {
         <div className="debt-list">
           {customers.map((c) => (
             <div className="debt-item" key={c.id}>
-              {c.image_url && (
-                <Image
-                  src={c.image_url}
-                  alt={`${c.name}'s image`}
-                  width={56}
-                  height={56}
-                  unoptimized
-                  className="debt-item__image"
-                />
-              )}
               <div className="debt-item__details">
                 <h2>{c.name}</h2>
                 <div className="debt-item__numbers">

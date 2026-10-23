@@ -1,13 +1,11 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ImagePlus, Save } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 import {
   updateCustomer,
   getCustomers,
-  uploadCustomerImage,
 } from "@/lib/api/customers/route";
 import type { Customer } from "@/lib/types/types";
 
@@ -20,21 +18,11 @@ function EditCustomerForm() {
     debts: 0,
     cost: 0,
     balance: 0,
-    image_url: null,
   };
   const [form, setForm] = useState<Customer>(emptyForm);
-  const [image, setImage] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
-
-  useEffect(
-    () => () => {
-      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
-    },
-    [imagePreviewUrl],
-  );
 
   useEffect(() => {
     async function load() {
@@ -66,7 +54,6 @@ function EditCustomerForm() {
     setError("");
     try {
       await updateCustomer(form);
-      if (image) await uploadCustomerImage(form.id, image);
       router.push("/customer");
     } catch (e) {
       setError(
@@ -90,7 +77,7 @@ function EditCustomerForm() {
       <header className="customer-edit__header">
         <span className="customer-edit__eyebrow">CUSTOMER DETAILS</span>
         <h1>Edit customer</h1>
-        <p className="page-subtitle">Update their information and profile image.</p>
+        <p className="page-subtitle">Update their information and account details.</p>
       </header>
 
       {loading ? (
@@ -167,61 +154,6 @@ function EditCustomerForm() {
                   required
                   disabled={saving}
                 />
-              </div>
-            </div>
-          </div>
-
-          <div className="customer-edit__image-section">
-            <div className="customer-edit__section-heading">
-              <div>
-                <h2>Profile image</h2>
-                <p>JPEG, PNG, WebP, or GIF · up to 5 MB</p>
-              </div>
-            </div>
-            <div className="customer-edit__image-control">
-              <div className="customer-edit__preview">
-                {image ? (
-                  <Image
-                    src={imagePreviewUrl ?? ""}
-                    alt="Selected customer image preview"
-                    fill
-                    unoptimized
-                    sizes="88px"
-                  />
-                ) : form.image_url ? (
-                  <Image
-                    src={form.image_url}
-                    alt={`${form.name}'s profile`}
-                    fill
-                    unoptimized
-                    sizes="88px"
-                  />
-                ) : (
-                  <ImagePlus size={28} aria-hidden="true" />
-                )}
-              </div>
-              <div className="customer-edit__file">
-                <label className="btn customer-edit__choose" htmlFor="edit-customer-image">
-                  <ImagePlus size={16} />
-                  {image ? "Choose another image" : form.image_url ? "Change image" : "Choose image"}
-                </label>
-                <input
-                  id="edit-customer-image"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  onChange={(e) => {
-                    const selected = e.target.files?.[0] ?? null;
-                    setImagePreviewUrl(
-                      selected ? URL.createObjectURL(selected) : null,
-                    );
-                    setImage(selected);
-                  }}
-                  disabled={saving}
-                  required={!form.image_url}
-                />
-                <span className="field__hint">
-                  {image ? image.name : "Your image is stored securely in Supabase."}
-                </span>
               </div>
             </div>
           </div>

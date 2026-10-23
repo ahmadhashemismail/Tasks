@@ -17,7 +17,7 @@ export async function GET() {
     }
 
     const rows = await sql`
-      SELECT id, name, debts, cost, account_id, balance, image_url
+      SELECT id, name, debts, cost, account_id, balance
       FROM public.customer
       WHERE account_id = ${accountId}
       ORDER BY id`;
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     const rows = await sql`
       INSERT INTO public.customer (name, debts, cost, account_id)
       VALUES (${name}, ${debts}, ${cost}, ${accountId})
-      RETURNING id, name, debts, cost, account_id, balance, image_url`;
+      RETURNING id, name, debts, cost, account_id, balance`;
     return NextResponse.json(rows[0], { status: 201 });
   } catch (error) {
     console.error(error);

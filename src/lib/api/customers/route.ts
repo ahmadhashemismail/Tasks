@@ -32,19 +32,6 @@ export async function addCustomer(customer: Customer): Promise<Customer> {
   return data as Customer;
 }
 
-export async function uploadCustomerImage(customerId: number, image: File) {
-  const formData = new FormData();
-  formData.set("image", image);
-
-  const res = await fetch(`${Base}customer/${customerId}/image`, {
-    method: "POST",
-    body: formData,
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error);
-  return data as { image_url: string };
-}
-
 export async function updateCustomer( customer: Customer) {
   const res = await fetch(`${Base}customer/${customer.id}`, {
     method: "PUT",
