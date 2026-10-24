@@ -1,14 +1,17 @@
 import { sql } from "@/lib/db";
+import { getAccountId } from "@/lib/getAccountId";
 import { NextResponse } from "next/server";
-import { getAuthState } from "@/lib/getAccountId";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function GET(_: Request, { params }: Ctx) {
   try {
+    const accountId = await getAccountId();
+    if (!accountId) return NextResponse.json({ error: "Please login" }, { status: 401 });
+
     const { id } = await params;
-     const { userId, accountId } = await getAuthState();
-    const rows = await sql`SELECT * FROM tasksWHERE id = ${id} AND account_id = ${accountId}`;
+    const rows = await sql`
+      SELECT * FROM tasks WHERE id = ${id} AND account_id = ${accountId}`;
     if (!rows[0]) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(rows[0]);
   } catch (error) {
@@ -19,12 +22,21 @@ export async function GET(_: Request, { params }: Ctx) {
 
 export async function PUT(req: Request, { params }: Ctx) {
   try {
+    const accountId = await getAccountId();
+    if (!accountId) return NextResponse.json({ error: "Please login" }, { status: 401 });
+
     const { id } = await params;
     const { title, note, date, enddate, done } = await req.json();
+    if (!title?.trim()) {
+      return NextResponse.json({ error: "title is required" }, { status: 400 });
+    }
+
     const rows = await sql`
       UPDATE tasks
-      SET title = ${title}, note = ${note}, date = ${date}, enddate = ${enddate}, done = ${done}
-      WHERE id = ${id} RETURNING *`;
+      SET title = ${title}, note = ${note ?? null}, date = ${date ?? null},
+          enddate = ${enddate ?? null}, done = ${!!done}
+      WHERE id = ${id} AND account_id = ${accountId}
+      RETURNING *`;
     if (!rows[0]) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(rows[0]);
   } catch (error) {
@@ -35,8 +47,13 @@ export async function PUT(req: Request, { params }: Ctx) {
 
 export async function DELETE(_: Request, { params }: Ctx) {
   try {
+    const accountId = await getAccountId();
+    if (!accountId) return NextResponse.json({ error: "Please login" }, { status: 401 });
+
     const { id } = await params;
-    await sql`DELETE FROM tasks WHERE id = ${id}`;
+    const rows = await sql`
+      DELETE FROM tasks WHERE id = ${id} AND account_id = ${accountId} RETURNING id`;
+    if (!rows[0]) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error(error);

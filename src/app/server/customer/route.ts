@@ -17,7 +17,7 @@ export async function GET() {
     }
 
     const rows = await sql`
-      SELECT id, name, debts, cost, account_id, balance
+      SELECT *
       FROM public.customer
       WHERE account_id = ${accountId}
       ORDER BY id`;
@@ -46,13 +46,13 @@ export async function POST(req: Request) {
       );
     }
 
-    const { name, debts = 0, cost = 0 } = await req.json();
-    if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
+const { name, debts = 0, cost = 0, image_url = null } = await req.json();
+if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
 
-    const rows = await sql`
-      INSERT INTO public.customer (name, debts, cost, account_id)
-      VALUES (${name}, ${debts}, ${cost}, ${accountId})
-      RETURNING id, name, debts, cost, account_id, balance`;
+const rows = await sql`
+  INSERT INTO public.customer (name, debts, cost, image_url, account_id)
+  VALUES (${name}, ${debts}, ${cost}, ${image_url}, ${accountId})
+  RETURNING id, name, debts, cost, account_id, balance, image_url`;
     return NextResponse.json(rows[0], { status: 201 });
   } catch (error) {
     console.error(error);

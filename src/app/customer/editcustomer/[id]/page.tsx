@@ -8,7 +8,7 @@ import {
   getCustomers,
 } from "@/lib/api/customers/route";
 import type { Customer } from "@/lib/types/types";
-
+import { uploadImage } from "@/lib/api/upload";
 function EditCustomerForm() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -23,6 +23,7 @@ function EditCustomerForm() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -65,6 +66,22 @@ function EditCustomerForm() {
       setSaving(false);
     }
   }
+
+
+async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  setUploading(true);
+  setError("");
+  try {
+    const url = await uploadImage(file);
+    setForm((f) => ({ ...f, image_url: url }));
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Upload failed");
+  } finally {
+    setUploading(false);
+  }
+}
 
   return (
     <main className="container customer-edit">
@@ -157,7 +174,26 @@ function EditCustomerForm() {
               </div>
             </div>
           </div>
-
+<div className="field">
+  <label className="field__label" htmlFor="customer-photo">Photo</label>
+  {form.image_url && (
+    <img
+      src={form.image_url}
+      alt={form.name}
+      width={96}
+      height={96}
+      style={{ width: 96, height: 96, objectFit: "cover", borderRadius: 8, marginBottom: 8 }}
+    />
+  )}
+  <input
+    id="customer-photo"
+    type="file"
+    accept="image/png,image/jpeg,image/webp"
+    onChange={handleFile}
+    disabled={saving || uploading}
+  />
+  {uploading && <p>Uploading...</p>}
+</div>
           {error && <p className="banner banner--error" role="alert">{error}</p>}
 
           <div className="customer-edit__actions">

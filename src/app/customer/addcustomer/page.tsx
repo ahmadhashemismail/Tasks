@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { addCustomer } from "@/lib/api/customers/route";
 import type { Customer } from "@/lib/types/types";
-
+import { uploadImage } from "@/lib/api/upload";
 const emptyForm: Customer = {
   id: 0,
   name: "",
@@ -17,7 +17,8 @@ export default function AddCustomer({ onAdded }: { onAdded?: () => void }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState<Customer>(emptyForm);
-
+// inside AddCustomer():
+const [uploading, setUploading] = useState(false);
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -38,6 +39,7 @@ export default function AddCustomer({ onAdded }: { onAdded?: () => void }) {
     }
   }
 
+
   if (!open) {
     return (
       <button className="btn btn--primary" onClick={() => setOpen(true)}>
@@ -45,6 +47,22 @@ export default function AddCustomer({ onAdded }: { onAdded?: () => void }) {
       </button>
     );
   }
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  setUploading(true);
+  setError("");
+  try {
+    const url = await uploadImage(file);
+    setForm((f) => ({ ...f, image_url: url }));
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Upload failed");
+  } finally {
+    setUploading(false);
+  }
+}
+
 
   return (
     <form className="task-form debt-form" onSubmit={handleSubmit}>
@@ -72,6 +90,15 @@ export default function AddCustomer({ onAdded }: { onAdded?: () => void }) {
           onChange={(e) => setForm({ ...form, cost: parseFloat(e.target.value) || 0 })}
         />
       </div>
+      <div className="field">
+  <label className="field__label">Photo</label>
+  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleFile} />
+  {uploading && <p>Uploading...</p>}
+  {form.image_url && (
+    <img src={form.image_url} alt="Preview" width={80} height={80}
+         style={{ objectFit: "cover", borderRadius: 8, marginTop: 8 }} />
+  )}
+</div>
       {error && <p className="banner banner--error">{error}</p>}
       <div className="task-form__actions">
         <button
@@ -89,7 +116,7 @@ export default function AddCustomer({ onAdded }: { onAdded?: () => void }) {
             setOpen(false);
             setError("");
           }}
-          disabled={saving}
+          disabled={saving||uploading}
         >
           Cancel
         </button>

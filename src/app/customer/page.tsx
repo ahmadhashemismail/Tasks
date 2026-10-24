@@ -88,27 +88,54 @@ export default function CustomerPage() {
       ) : customers.length === 0 && !loading ? (
         <div className="empty-state"><p>No customers yet. Add your first customer.</p></div>
       ) : (
-        <div className="debt-list">
-          {customers.map((c) => (
-            <div className="debt-item" key={c.id}>
-              <div className="debt-item__details">
-                <h2>{c.name}</h2>
-                <div className="debt-item__numbers">
-                  <span>Debts: {c.debts}</span>
-                  <span>Cost: {c.cost}</span>
-                  <span className="debt-item__balance">Balance: {c.balance}</span>
-                </div>
-              </div>
-              <div className="task-actions">
-                <Link href={`/customer/editcustomer/${c.id}`} className="action action--edit" aria-label="Edit customer">
-                  <Pencil size={16} />
-                </Link>
-                <button className="action action--delete" onClick={() => handleDelete(c.id)} aria-label="Delete customer">
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
+      <div className="debt-list">
+        {customers.map((c) => (
+          <div className="debt-item" key={c.id}>
+  {c.image_url ? (
+    <img
+      src={c.image_url}
+      alt={c.name}
+      width={64}
+      height={64}
+      style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 8, flexShrink: 0 }}
+    />
+  ) : (
+    <div
+      style={{
+        width: 64,
+        height: 64,
+        borderRadius: 8,
+        flexShrink: 0,
+        display: "grid",
+        placeItems: "center",
+        background: "rgba(255,255,255,0.06)",
+        fontWeight: 700,
+        fontSize: 24,
+      }}
+    >
+      {c.name.charAt(0).toUpperCase()}
+    </div>
+  )}
+
+  <div className="debt-item__details">
+    <h2>{c.name}</h2>
+    <div className="debt-item__numbers">
+      <span>Debts: {c.debts}</span>
+      <span>Cost: {c.cost}</span>
+      <span className="debt-item__balance">Balance: {c.balance}</span>
+    </div>
+  </div>
+
+  <div className="task-actions">
+    <Link href={`/customer/editcustomer/${c.id}`} className="action action--edit" aria-label="Edit customer">
+      <Pencil size={16} />
+    </Link>
+    <button className="action action--delete" onClick={() => handleDelete(c.id)} aria-label="Delete customer">
+      <Trash2 size={16} />
+    </button>
+  </div>
+</div>
+  ))}
         </div>
       )}
     </div>

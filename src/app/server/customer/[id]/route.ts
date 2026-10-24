@@ -11,7 +11,7 @@ export async function GET(_: Request, { params }: Ctx) {
 
     const { id } = await params;
     const rows = await sql`
-      SELECT id, name, debts, cost, account_id, balance
+      SELECT id, name, debts, cost, account_id, balance ,image_url = null
       FROM public.customer
       WHERE id = ${id} AND account_id = ${accountId}`;
     if (!rows[0]) return NextResponse.json({ error: "Customer not found" }, { status: 404 });
@@ -29,11 +29,11 @@ export async function PUT(req: Request, { params }: Ctx) {
     if (!accountId) return NextResponse.json({ error: "Please login" }, { status: 401 });
 
     const { id } = await params;
-    const { name, debts, cost } = await req.json();
+    const { name, debts, cost, image_url } = await req.json();
 
     const rows = await sql`
       UPDATE public.customer
-      SET name = ${name}, debts = ${debts}, cost = ${cost}
+      SET name = ${name}, debts = ${debts}, cost = ${cost},image_url = COALESCE(${image_url ?? null}, image_url)
       WHERE id = ${id} AND account_id = ${accountId}
       RETURNING id, name, debts, cost, account_id, balance`;
     if (!rows[0]) return NextResponse.json({ error: "Customer not found" }, { status: 404 });
