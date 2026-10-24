@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { getAccountId } from "@/lib/getAccountId";
 
 const BUCKET = "tasks";
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     if (file.size > MAX_SIZE) {
       return NextResponse.json({ error: "Image must be under 4 MB" }, { status: 400 });
     }
-
+const supabase = getSupabase();
     const path = `${accountId}/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage
       .from(BUCKET)
