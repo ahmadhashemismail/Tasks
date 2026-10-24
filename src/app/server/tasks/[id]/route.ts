@@ -1,12 +1,14 @@
 import { sql } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { getAuthState } from "@/lib/getAccountId";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function GET(_: Request, { params }: Ctx) {
   try {
     const { id } = await params;
-    const rows = await sql`SELECT * FROM tasks WHERE id = ${id}`;
+     const { userId, accountId } = await getAuthState();
+    const rows = await sql`SELECT * FROM tasksWHERE id = ${id} AND account_id = ${accountId}`;
     if (!rows[0]) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(rows[0]);
   } catch (error) {
